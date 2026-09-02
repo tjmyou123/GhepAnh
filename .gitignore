@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# PyInstaller (exe phat hanh nam o thu muc goc)
+build/
+dist/
+
+# Anh test sinh tu tools/make_test_images.py
+test_data/
+
+# Khoa rieng (neu xuat)
+*.pfx

@@ -1,0 +1,30 @@
+# UTF-8
+#
+# Thong tin phien ban nhung vao dist\ghep.exe
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 1, 0, 0),
+    prodvers=(1, 1, 0, 0),
+    mask=0x3F,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0),
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable('040904B0', [
+        StringStruct('CompanyName', 'Prodat09'),
+        StringStruct('FileDescription', 'Ghép ảnh thông minh (dòng lệnh) — Prodat09'),
+        StringStruct('FileVersion', '1.1.0.0'),
+        StringStruct('InternalName', 'ghep'),
+        StringStruct('LegalCopyright', '© 2026 Prodat09'),
+        StringStruct('OriginalFilename', 'ghep.exe'),
+        StringStruct('ProductName', 'Ghép ảnh thông minh'),
+        StringStruct('ProductVersion', '1.1.0.0'),
+      ]),
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])]),
+  ],
+)
