@@ -6,6 +6,24 @@ Ghép toàn bộ ảnh trong một thư mục (1 → 300 ảnh) thành **một t
 
 Thuật toán tham khảo kinh nghiệm từ [flickr/justified-layout](https://github.com/flickr/justified-layout), [adrienverge/PhotoCollage](https://github.com/adrienverge/PhotoCollage) và Linear Partition (Skiena).
 
+## ⚡ Tải về & chạy ngay (không cần tải cả thư mục, không cần Python)
+
+Chỉ cần **1 file exe** là dùng được:
+
+1. **Tải** [GhepAnh.exe](https://github.com/tjmyou123/GhepAnh/releases/latest/download/GhepAnh.exe) (giao diện, ~35 MB) — hoặc vào tab [Releases](https://github.com/tjmyou123/GhepAnh/releases) bấm file muốn tải.
+2. **Nháy đúp** `GhepAnh.exe` → chọn thư mục ảnh → chọn kiểu đầu ra / bố cục / theme (có khung xem trước) → bấm **GHÉP & LƯU FILE**. Xong!
+3. Lần đầu mở nếu Windows SmartScreen hỏi: bấm **More info → Run anyway** (exe ký bằng chứng chỉ tự ký Prodat09 — muốn hết hỏi thì cài thêm [Prodat09.cer](https://github.com/tjmyou123/GhepAnh/releases/latest/download/Prodat09.cer) vào *Trusted Root + Trusted Publishers*).
+
+Thích dùng dòng lệnh? Tải thêm [ghep.exe](https://github.com/tjmyou123/GhepAnh/releases/latest/download/ghep.exe):
+
+```powershell
+ghep.exe "D:\Anh du lich" -p fb-cover              # ghép ảnh bìa Facebook
+ghep.exe "D:\Anh" -l timeline -t boardroom          # dòng thời gian kỷ niệm
+ghep.exe show "D:\Anh" --pptx --title "Hè 2026"     # trình chiếu PowerPoint tự chạy
+```
+
+> Mọi thứ bên dưới (cài Python, clone repo…) chỉ dành cho người muốn chạy từ mã nguồn hoặc tự build.
+
 ## Kiểu đầu ra
 
 | Preset | Mục đích | Kích thước |
@@ -54,7 +72,7 @@ pip install -r requirements.txt
 
 ## Đóng gói thành file .exe (chạy không cần Python)
 
-**Tải nhanh:** vào tab **Releases** trên GitHub để tải `GhepAnh.exe` / `ghep.exe` có sẵn, hoặc dùng luôn 2 file exe ở ngay thư mục gốc repo.
+Không muốn tự build? Xem mục **⚡ Tải về & chạy ngay** ở đầu trang.
 
 Tự build: nháy đúp `build_exe.bat` (hoặc chạy `python -m PyInstaller GhepAnh.spec --noconfirm --clean`). Sau 1–3 phút, exe được tạo trong `dist\` và tự copy ra thư mục gốc:
 
