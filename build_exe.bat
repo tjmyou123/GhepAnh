@@ -10,7 +10,7 @@ echo === Buoc 2/3: dong goi (mat 1-3 phut) ===
 python -m PyInstaller GhepAnh.spec --noconfirm --clean || goto :err
 
 echo.
-echo === Buoc 3/3: ky so (Prodat09) + dua exe ra thu muc goc ===
+echo === Buoc 3/3: ky so (Datpro09) + dua exe ra thu muc goc ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "packaging\sign_exe.ps1" || goto :err
 copy /Y "dist\GhepAnh.exe" "GhepAnh.exe" >nul
 copy /Y "dist\ghep.exe" "ghep.exe" >nul
@@ -19,7 +19,7 @@ echo.
 echo ================= XONG! =================
 echo   GhepAnh.exe  - giao dien, ngay thu muc goc (nhay dup de chay)
 echo   ghep.exe     - dong lenh:  ghep.exe "D:\Anh" -l timeline
-echo   Da ky so (chung chi tu ky Prodat09 - xem packaging\Prodat09.cer)
+echo   Da ky so (chung chi tu ky Datpro09 - xem packaging\Datpro09.cer)
 echo ==========================================
 pause
 exit /b 0

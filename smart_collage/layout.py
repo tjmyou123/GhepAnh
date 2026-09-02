@@ -691,12 +691,180 @@ def compute_hero_layout(
     return cells
 
 
+def compute_hero_center_layout(
+    aspects: list[float],
+    width: int,
+    height: int,
+    margin: int = 4,
+    outer: int = 0,
+    fill_style: str = "justified",
+) -> list[Cell]:
+    """Anh chu nam CHINH GIUA khung, cac anh con lai vay quanh 4 phia.
+
+    Vung tren/duoi chay het be rong, vung trai/phai cao bang anh chu.
+    Can it nhat 5 anh (1 chu + 4 vung); it hon hoac khung qua chat thi
+    tu lui ve kieu hero chu L thong thuong.
+    """
+    n = len(aspects)
+    if n == 0:
+        return []
+    cw = width - 2 * outer
+    ch = height - 2 * outer
+    if n < 5 or cw < 12 * margin + 96 or ch < 12 * margin + 96:
+        return compute_hero_layout(aspects, width, height, margin, outer,
+                                   hero_count=1, fill_style=fill_style)
+
+    a0 = max(0.05, min(20.0, aspects[0]))
+    if n <= 8:
+        f_area = 0.34
+    elif n <= 16:
+        f_area = 0.28
+    else:
+        f_area = 0.22
+    area = f_area * cw * ch
+    hh = math.sqrt(area / a0)
+    hw = hh * a0
+    hw = min(max(hw, 0.30 * cw), 0.56 * cw)
+    hh = min(max(area / hw, 0.30 * ch), 0.56 * ch)
+    hw_i, hh_i = int(round(hw)), int(round(hh))
+    hx0 = outer + (cw - hw_i) // 2
+    hy0 = outer + (ch - hh_i) // 2
+    hx1, hy1 = hx0 + hw_i, hy0 + hh_i
+
+    t_h = hy0 - outer - margin
+    b_h = outer + ch - hy1 - margin
+    l_w = hx0 - outer - margin
+    r_w = outer + cw - hx1 - margin
+    if min(t_h, b_h, l_w, r_w) < 24:
+        return compute_hero_layout(aspects, width, height, margin, outer,
+                                   hero_count=1, fill_style=fill_style)
+
+    k = n - 1
+    regions = [cw * t_h, l_w * hh_i, r_w * hh_i, cw * b_h]  # tren trai phai duoi
+    total = float(sum(regions))
+    counts = [max(1, round(k * a / total)) for a in regions]
+    order = sorted(range(4), key=lambda j: -regions[j])
+    i = 0
+    while sum(counts) > k:
+        j = order[i % 4]
+        i += 1
+        if counts[j] > 1:
+            counts[j] -= 1
+    while sum(counts) < k:
+        counts[order[i % 4]] += 1
+        i += 1
+
+    cells = [Cell(0, hx0, hy0, hx1, hy1)]
+    pos = 1
+
+    def _add(cnt: int, w: int, h: int, dx: int, dy: int):
+        nonlocal pos
+        sub = _fill_region(fill_style, aspects[pos:pos + cnt], w, h, margin)
+        for c in sub:
+            cells.append(Cell(c.index + pos, c.x0 + dx, c.y0 + dy,
+                              c.x1 + dx, c.y1 + dy))
+        pos += cnt
+
+    _add(counts[0], cw, t_h, outer, outer)              # dai tren full rong
+    _add(counts[1], l_w, hh_i, outer, hy0)              # cot trai
+    _add(counts[2], r_w, hh_i, hx1 + margin, hy0)       # cot phai
+    _add(counts[3], cw, b_h, outer, hy1 + margin)       # dai duoi full rong
+    return cells
+
+
+def compute_golden_layout(
+    aspects: list[float],
+    width: int,
+    height: int,
+    margin: int = 4,
+    outer: int = 0,
+    fill_style: str = "justified",
+) -> list[Cell]:
+    """Xoan oc ti le vang: anh 1 lon nhat, cac anh sau nho dan cuon vao tam.
+
+    Moi buoc cat khung theo ti le vang (0.618) va xoay chieu nhu vo oc.
+    Khi o sap toi qua nho (hoac con qua nhieu anh) thi phan con lai duoc
+    xep gon trong "tui" trong cung bang fill_style — luon phu kin khung.
+    """
+    n = len(aspects)
+    if n == 0:
+        return []
+    if n == 1:
+        return compute_layout(aspects, width, height, margin, outer)
+    PHI = 0.6180339887498949
+    fx0, fy0 = float(outer), float(outer)
+    fx1, fy1 = float(width - outer), float(height - outer)
+    if fx1 - fx0 <= 0 or fy1 - fy0 <= 0:
+        raise ValueError("Le ngoai (outer) qua lon so voi kich thuoc anh ra.")
+    short = min(fx1 - fx0, fy1 - fy0)
+    min_side = max(0.045 * short, 3.0 * margin, 24.0)
+    cell_min_area = max(24.0, 0.018 * short) ** 2  # cho cho anh trong tui
+
+    rects: list[tuple[float, float, float, float]] = []
+    d = 0
+    left = n
+    x0, y0, x1, y1 = fx0, fy0, fx1, fy1
+    while left > 1:
+        w, h = x1 - x0, y1 - y0
+        dim = w if d % 2 == 0 else h
+        piece = dim * PHI
+        rest = dim - piece
+        rest_area = rest * (h if d % 2 == 0 else w)
+        if (piece < min_side or rest < min_side
+                or rest_area < (left - 1) * cell_min_area):
+            break
+        if d == 0:
+            rects.append((x0, y0, x0 + piece, y1))
+            x0 += piece
+        elif d == 1:
+            rects.append((x0, y0, x1, y0 + piece))
+            y0 += piece
+        elif d == 2:
+            rects.append((x1 - piece, y0, x1, y1))
+            x1 -= piece
+        else:
+            rects.append((x0, y1 - piece, x1, y1))
+            y1 -= piece
+        d = (d + 1) % 4
+        left -= 1
+    rects.append((x0, y0, x1, y1))  # tui trong cung
+
+    m_lo, m_hi = margin // 2, margin - margin // 2
+    eps = 0.5
+
+    def _inset(r: tuple[float, float, float, float]) -> tuple[int, int, int, int]:
+        rx0, ry0, rx1, ry1 = r
+        ix0 = int(round(rx0)) + (0 if rx0 - fx0 < eps else m_lo)
+        iy0 = int(round(ry0)) + (0 if ry0 - fy0 < eps else m_lo)
+        ix1 = int(round(rx1)) - (0 if fx1 - rx1 < eps else m_hi)
+        iy1 = int(round(ry1)) - (0 if fy1 - ry1 < eps else m_hi)
+        return ix0, iy0, ix1, iy1
+
+    cells: list[Cell] = []
+    for i, r in enumerate(rects[:-1]):
+        ix0, iy0, ix1, iy1 = _inset(r)
+        cells.append(Cell(i, ix0, iy0, ix1, iy1))
+    px0, py0, px1, py1 = _inset(rects[-1])
+    base = len(rects) - 1          # so anh da dat vao xoan oc
+    k = n - base                   # so anh trong tui
+    if k == 1:
+        cells.append(Cell(n - 1, px0, py0, px1, py1))
+    else:
+        sub = _fill_region(fill_style, aspects[base:], px1 - px0, py1 - py0,
+                           margin)
+        cells += [Cell(c.index + base, c.x0 + px0, c.y0 + py0,
+                       c.x1 + px0, c.y1 + py0) for c in sub]
+    return cells
+
+
 LAYOUT_STYLES = {
     "justified": "Hàng cân bằng (tự nhiên, ít cắt)",
     "grid": "Lưới đều (gọn gàng, báo cáo)",
     "mosaic": "Lưới điểm nhấn (ô to xen kẽ)",
     "masonry": "Masonry (kiểu Pinterest)",
     "hero": "Ảnh chủ đạo (hiện đại)",
+    "hero-center": "Ảnh chủ giữa — vây quanh 4 phía",
+    "golden": "Xoắn ốc tỷ lệ vàng (nhỏ dần vào tâm)",
     "polaroid": "Polaroid (nghệ thuật, hiện đại)",
     "stack": "Xếp nghiêng tự do (bàn ảnh)",
     "timeline": "Timeline (dòng thời gian kỷ niệm)",
@@ -745,6 +913,12 @@ def compute_style_layout(
     if style == "hero":
         return compute_hero_layout(aspects, width, height, margin, outer,
                                    hero_count=hero_count, fill_style=fill_style)
+    if style == "hero-center":
+        return compute_hero_center_layout(aspects, width, height, margin,
+                                          outer, fill_style=fill_style)
+    if style == "golden":
+        return compute_golden_layout(aspects, width, height, margin, outer,
+                                     fill_style=fill_style)
     if style == "stack":
         n = len(aspects)
         srt = sorted(aspects)

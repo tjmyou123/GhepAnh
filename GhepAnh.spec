@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""Dong goi "Ghep anh thong minh" (Prodat09) thanh 2 file .exe doc lap:
+"""Dong goi "Ghep anh thong minh" (Datpro09) thanh 2 file .exe doc lap:
 
     dist\\GhepAnh.exe  - giao dien do hoa (nhay dup de chay)
     dist\\ghep.exe     - dong lenh: ghep anh / show

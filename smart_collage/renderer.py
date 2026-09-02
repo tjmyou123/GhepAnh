@@ -71,14 +71,36 @@ def probe_images(paths: list[Path]) -> tuple[list[Path], list[float], list[str]]
     return valid, aspects, errors
 
 
+# Chinh sua rieng tung anh (theo ten file thuong): rot/zoom/dx/dy.
+# Duoc render_image() dat truoc moi lan ghep; cac ham paste doc qua
+# _load_for_cell. Moi tien trinh chi render 1 anh mot luc (GUI co _busy).
+_ADJUST: dict[str, dict] = {}
+
+
 def _load_for_cell(path: Path, cw: int, ch: int) -> Image.Image:
-    """Doc anh va cover-crop vua khit o (cw x ch), chat luong cao."""
+    """Doc anh va cover-crop vua khit o (cw x ch), chat luong cao.
+
+    Ton trong chinh sua rieng cua anh trong _ADJUST (neu co):
+    rot 0/90/180/270 (theo chieu kim dong ho), zoom >= 1 (phong to vung cat),
+    dx/dy trong [-1, 1] (doi cua so cat: -1 = mep trai/tren, 1 = mep phai/duoi).
+    """
+    adj = _ADJUST.get(path.name.lower(), {})
+    rot = int(adj.get("rot", 0)) % 360
+    zoom = max(1.0, min(4.0, float(adj.get("zoom", 1.0))))
+    dx = max(-1.0, min(1.0, float(adj.get("dx", 0.0))))
+    dy = max(-1.0, min(1.0, float(adj.get("dy", 0.0))))
+
     img = Image.open(path)
     # JPEG: giai ma nhanh o kich thuoc ~2x dich -> nhanh gap nhieu lan voi
     # 300 anh may chuc MP ma khong giam chat luong dau ra.
     if (img.format or "").upper() == "JPEG":
-        img.draft("RGB", (cw * 2, ch * 2))
+        m = round(max(cw, ch) * 2 * zoom)
+        img.draft("RGB", (m, m))
     img = ImageOps.exif_transpose(img)
+    if rot:
+        img = img.transpose({90: Image.Transpose.ROTATE_270,
+                             180: Image.Transpose.ROTATE_180,
+                             270: Image.Transpose.ROTATE_90}[rot])
     if img.mode != "RGB":
         # Anh co kenh trong suot -> dat len nen trang
         if img.mode in ("RGBA", "LA", "PA") or (
@@ -92,13 +114,13 @@ def _load_for_cell(path: Path, cw: int, ch: int) -> Image.Image:
             img = img.convert("RGB")
 
     iw, ih = img.size
-    scale = max(cw / iw, ch / ih)
+    scale = max(cw / iw, ch / ih) * zoom
     nw = max(cw, int(round(iw * scale)))
     nh = max(ch, int(round(ih * scale)))
     img = img.resize((nw, nh), Image.Resampling.LANCZOS)
-    # cat giua (center-crop) phan thua
-    left = (nw - cw) // 2
-    top = (nh - ch) // 2
+    # cat phan thua: mac dinh o giua, dich theo dx/dy neu nguoi dung chinh
+    left = min(nw - cw, max(0, round((nw - cw) * (0.5 + 0.5 * dx))))
+    top = min(nh - ch, max(0, round((nh - ch) * (0.5 + 0.5 * dy))))
     return img.crop((left, top, left + cw, top + ch))
 
 
@@ -1273,6 +1295,7 @@ def render_image(
     theme: Optional[dict] = None,
     progress: Optional[Callable[[int, int], None]] = None,
     info_opts: Optional[dict] = None,
+    adjust: Optional[dict] = None,
 ) -> Image.Image:
     """Ghep anh theo layout `cells` (toa do da o kich thuoc width*s x height*s)
     roi thu nho ve width x height de tang do net (supersampling).
@@ -1284,7 +1307,11 @@ def render_image(
     theme: dict tu themes.py — nen gradient, bo goc, do bong.
     info_opts: tuy chon chi tiet infographic (xem INFO_OPT_DEFAULTS):
         numbers/captions/markers (bool), num_color/line_color (mau hoac None).
+    adjust: chinh rieng tung anh theo ten file, vd {"anh.jpg": {"rot": 90,
+        "zoom": 1.5, "dx": -0.4, "dy": 0.0}} — xoay/cat sau trong tung o.
     """
+    global _ADJUST
+    _ADJUST = {str(k).lower(): dict(v) for k, v in (adjust or {}).items()}
     s = max(1, supersample)
     if theme:
         canvas = make_background(width * s, height * s, theme, bg_override=None)

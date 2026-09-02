@@ -15,11 +15,11 @@ VSVersionInfo(
   kids=[
     StringFileInfo([
       StringTable('040904B0', [
-        StringStruct('CompanyName', 'Prodat09'),
-        StringStruct('FileDescription', 'Ghép ảnh thông minh (dòng lệnh) — Prodat09'),
+        StringStruct('CompanyName', 'Datpro09'),
+        StringStruct('FileDescription', 'Ghép ảnh thông minh (dòng lệnh) — Datpro09'),
         StringStruct('FileVersion', '1.1.0.0'),
         StringStruct('InternalName', 'ghep'),
-        StringStruct('LegalCopyright', '© 2026 Prodat09'),
+        StringStruct('LegalCopyright', '© 2026 Datpro09'),
         StringStruct('OriginalFilename', 'ghep.exe'),
         StringStruct('ProductName', 'Ghép ảnh thông minh'),
         StringStruct('ProductVersion', '1.1.0.0'),

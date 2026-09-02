@@ -1,4 +1,4 @@
-"""Giao dien dong lenh — Ghep anh thong minh, phan mem boi Prodat09.
+"""Giao dien dong lenh — Ghep anh thong minh, phan mem boi Datpro09.
 
 Vi du:
     python -m smart_collage "D:\\Anh du lich" -p fb-cover
@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="smart_collage",
         description="Ghep tat ca anh trong mot thu muc thanh 1 anh chat luong cao.",
-        epilog="Ghep anh thong minh — (c) 2026 Prodat09",
+        epilog="Ghep anh thong minh — (c) 2026 Datpro09",
     )
     p.add_argument("folder", help="Thu muc chua anh dau vao")
     p.add_argument(
@@ -55,9 +55,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--bg", default="#FFFFFF",
                    help="Mau nen, vd #FFFFFF hoac #000000")
     p.add_argument("--order", default="name",
-                   choices=["name", "random", "aspect"],
+                   choices=["name", "random", "aspect", "custom"],
                    help="Thu tu anh: name = theo ten file; random = ngau nhien; "
-                        "aspect = gom theo ti le (it phai cat anh nhat)")
+                        "aspect = gom theo ti le (it phai cat anh nhat); "
+                        "custom = tu sap vi tri bang --pos")
+    p.add_argument("--pos", action="append", default=None, metavar="TEN_FILE",
+                   help="Dat anh vao vi tri theo thu tu khai bao (lap lai duoc): "
+                        "--pos a.jpg --pos b.jpg -> a.jpg o o thu 1, b.jpg o o 2; "
+                        "anh con lai xep sau theo ten. Tu bat --order custom")
     p.add_argument("--heroes", type=int, default=1, choices=range(1, 7),
                    metavar="1-6",
                    help="So anh chu dao cho layout 'hero' (mac dinh 1). "
@@ -182,6 +187,8 @@ def main(argv=None) -> int:
     if argv and argv[0] == "show":
         return show_main(argv[1:])
     args = build_parser().parse_args(argv)
+    if args.pos:
+        args.order = "custom"
 
     last = {"pct": -1}
 
@@ -197,6 +204,7 @@ def main(argv=None) -> int:
             args.folder, preset=args.preset, layout_style=args.layout,
             theme=args.theme, out=args.out, margin=args.margin,
             outer=args.outer, bg=args.bg, order=args.order,
+            custom_order=args.pos,
             supersample=args.scale, jpeg_quality=args.quality,
             overwrite=args.overwrite, progress=progress,
             hero_count=args.heroes, hero_files=args.hero,

@@ -1,4 +1,4 @@
-Ghép ảnh thông minh — phần mềm bởi **Prodat09**.
+Ghép ảnh thông minh — phần mềm bởi **Datpro09**.
 
 ## Tải & chạy (không cần cài Python)
 
@@ -6,9 +6,9 @@ Ghép ảnh thông minh — phần mềm bởi **Prodat09**.
 |---|---|
 | **GhepAnh.exe** | Giao diện đồ hoạ — tải về, nháy đúp là chạy |
 | **ghep.exe** | Bản dòng lệnh: `ghep.exe "D:\Anh" -l timeline`, `ghep.exe show "D:\Anh" --pptx` |
-| Prodat09.cer | Chứng chỉ ký số (tuỳ chọn): cài vào *Trusted Root + Trusted Publishers* để hết cảnh báo SmartScreen |
+| Datpro09.cer | Chứng chỉ ký số (tuỳ chọn): cài vào *Trusted Root + Trusted Publishers* để hết cảnh báo SmartScreen |
 
-Lần đầu mở nếu Windows SmartScreen hỏi: bấm **More info → Run anyway** (exe ký bằng chứng chỉ tự ký Prodat09).
+Lần đầu mở nếu Windows SmartScreen hỏi: bấm **More info → Run anyway** (exe ký bằng chứng chỉ tự ký Datpro09).
 
 ## Tính năng
 - Ghép 1–300 ảnh thành 1 tấm chất lượng cao, không méo/không chồng chéo
