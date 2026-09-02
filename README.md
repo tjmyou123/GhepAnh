@@ -22,6 +22,10 @@ ghep.exe "D:\Anh" -l timeline -t boardroom          # dòng thời gian kỷ ni�
 ghep.exe show "D:\Anh" --pptx --title "Hè 2026"     # trình chiếu PowerPoint tự chạy
 ```
 
+Giao diện thực tế — chọn thư mục là thấy ngay kết quả ở khung xem trước:
+
+![Giao diện Ghép ảnh thông minh: chọn thư mục ảnh, kiểu đầu ra, bố cục ảnh chủ đạo và xem trước tức thì](docs/screenshot.png)
+
 > Mọi thứ bên dưới (cài Python, clone repo…) chỉ dành cho người muốn chạy từ mã nguồn hoặc tự build.
 
 ## Kiểu đầu ra
